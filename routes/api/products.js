@@ -82,4 +82,28 @@ router.patch('/update/:id', async (req, res) => {
     }
 });
 
+router.delete('/delete/:id', async (req, res) => {
+    const productId = req.params['id'];
+    try {
+        const deletedProduct = await Product.findOneAndDelete({ product_id:productId });
+        if (!deletedProduct) {
+            return res.status(404).json({
+                status: 404,
+                message: 'Product not found'
+            });
+        }
+
+        return res.status(200).json({
+            status: 200,
+            message: 'Product deleted successfully'
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: 'Internal server error'
+        });
+    }
+});
+
+
 module.exports = router;
