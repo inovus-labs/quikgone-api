@@ -27,6 +27,11 @@ const ProductSchema = new mongoose.Schema({
         default: "fruits",
         enum: ["fruits", "vegetables"]
     },
+    expiry_date: {
+        type: Date,
+        required: false,
+        default: Date.now
+    },
     seller_id:{
         type:String,
         required: true
