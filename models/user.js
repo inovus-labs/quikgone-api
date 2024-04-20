@@ -41,6 +41,16 @@ const UserSchema = new mongoose.Schema({
         default: "active",
         enum: ["active", "inactive", "suspended", "deleted"]
     },
+    user_type: {
+        type: String,
+        required: true,
+        default: "buyer",
+        enum: ["buyer", "seller", "carrier", "admin"]
+    },
+    meta_id: {
+        type: String,
+        required: false
+    },
     created_at: {
         type: Date,
         required: false,

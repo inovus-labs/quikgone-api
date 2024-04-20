@@ -2,45 +2,47 @@
 const mongoose = require('mongoose');
 const { nanoid } = require('nanoid');
 
-const ProductSchema = new mongoose.Schema({
+const MetadataSchema = new mongoose.Schema({
     
-    product_id: {
+    meta_id: {
         type: String,
         required: true,
         unique: true,
         default: () => nanoid()
     },
-    product_name: {
+    user_id: {
         type: String,
         required: true
     },
-    product_desc: {
+
+    // Company Details (Seller)
+    company_name: {
         type: String,
         required: true
     },
-    product_qty: {
+    company_address: {
         type: String,
         required: true
     },
-    images: {
-        type: Array,
-        required: false
-    },
-    product_owner: {
+    company_city: {
         type: String,
         required: true
     },
-    product_category: {
+    company_state: {
         type: String,
-        required: true,
-        default: "fruits",
-        enum: ["fruits", "vegetables", "packed_foods"]
+        required: true
     },
-    expiry_date: {
-        type: Date,
-        required: false,
-        default: Date.now
+
+    // Vehicle Details (Carrier)
+    vehicle_type: {
+        type: String,
+        required: true
     },
+    vehicle_number: {
+        type: String,
+        required: true
+    },
+
     created_at: {
         type: Date,
         required: false,
@@ -52,6 +54,6 @@ const ProductSchema = new mongoose.Schema({
         default: Date.now
     }
 
-}, { collection: 'products' })
+}, { collection: 'metadata' })
 
-module.exports = mongoose.model('Product', ProductSchema);
+module.exports = mongoose.model('Metadata', MetadataSchema);
