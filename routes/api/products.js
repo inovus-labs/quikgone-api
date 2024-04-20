@@ -55,14 +55,15 @@ router.get('/:id', async (req, res) => {
 
 router.post('/create', async (req, res) => {
 
-    const { product_name, product_qty, product_owner, product_category, seller_id } = req.body;
+    const { product_name, product_qty, product_owner, product_category, seller_id,expiry_date } = req.body;
 
     const newProduct = new Product({
         product_name: product_name,
         product_qty: product_qty,
         product_owner: product_owner,
         product_category: product_category,
-        seller_id: seller_id
+        seller_id: seller_id,
+        expiry_date:expiry_date
     })
     await newProduct.save()
     return res.status(200).json({
