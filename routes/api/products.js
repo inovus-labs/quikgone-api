@@ -3,6 +3,30 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../../models/products');
 
+router.get('/', async (req, res) => {
+    const productId = req.params['id'];
+
+    try {
+        const product = await Product.find({}).select('-_id -__v')
+        if (!product) {
+            return res.status(404).json({
+                status: 404,
+                message: 'Product not found'
+            });
+        }
+
+        return res.status(200).json({
+            status: 200,
+            message: 'Product found',
+            data: product
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: 'Internal server error'
+        });
+    }
+});
 
 router.get('/:id', async (req, res) => {
     const productId = req.params['id'];
