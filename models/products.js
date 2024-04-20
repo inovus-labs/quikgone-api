@@ -20,6 +20,26 @@ const ProductSchema = new mongoose.Schema({
     product_owner:{
         type:String,
         required:true
+    },
+    product_category:{
+        type: String,
+        required: true,
+        default: "fruits",
+        enum: ["fruits", "vegetables"]
+    },
+    seller_id:{
+        type:String,
+        required: true
+    },
+    created_at: {
+        type: Date,
+        required: false,
+        default: Date.now
+    },
+    updated_at: {
+        type: Date,
+        required: false,
+        default: Date.now
     }
     
     
