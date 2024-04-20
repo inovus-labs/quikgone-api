@@ -100,12 +100,13 @@ router.get('/:id', async (req, res) => {
 
 router.post('/create', verifyToken, async (req, res) => {
 
-    const { product_name, product_desc, product_qty, images, product_category, expiry_date, price, discount } = req.body;
+    const { product_name, product_desc, product_qty, product_unit, images, product_category, expiry_date, price, discount } = req.body;
 
     const newProduct = new Product({
         product_name: product_name,
         product_desc: product_desc,
         product_qty: product_qty,
+        product_unit: product_unit,
         images: images,
         product_owner: req.user.user_id,
         product_category: product_category,
@@ -138,7 +139,7 @@ router.post('/create', verifyToken, async (req, res) => {
 router.patch('/update/:id', verifyToken, async (req, res) => {
 
     const productId = req.params['id'];
-    const { product_name, product_desc, product_qty, images, product_category, price, discount } = req.body;
+    const { product_name, product_desc, product_qty, product_unit, images, product_category, price, discount } = req.body;
 
     try {
         const existingProduct = await Product.findOne({ product_id: productId });
@@ -153,6 +154,7 @@ router.patch('/update/:id', verifyToken, async (req, res) => {
         existingProduct.product_name = product_name;
         existingProduct.product_desc = product_desc;
         existingProduct.product_qty = product_qty;
+        existingProduct.product_unit = product_unit;
         existingProduct.images = images;
         existingProduct.product_category = product_category;
         existingProduct.price = price;

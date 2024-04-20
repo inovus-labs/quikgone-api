@@ -19,8 +19,14 @@ const ProductSchema = new mongoose.Schema({
         required: true
     },
     product_qty: {
-        type: String,
+        type: Number,
         required: true
+    },
+    product_unit: {
+        type: String,
+        required: false,
+        default: "kg",
+        enum: ["kg", "g", "l", "ml", "pcs"]
     },
     images: {
         type: Array,
