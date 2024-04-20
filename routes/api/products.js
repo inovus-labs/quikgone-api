@@ -1,7 +1,7 @@
 
 const express = require('express');
 const router = express.Router();
-const Product = require('../../models/products');
+const Product = require('../../models/product');
 const verifyToken = require('../../middleware/authentication');
 
 
@@ -156,7 +156,7 @@ router.patch('/update/:id', verifyToken, async (req, res) => {
             status: 200,
             message: 'Product updated successfully'
         });
-        
+
     } catch (error) {
         return res.status(500).json({
             status: 500,
