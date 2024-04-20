@@ -9,7 +9,15 @@ const UserSchema = new mongoose.Schema({
         unique: true,
         default: () => nanoid()
     },
-    full_name:{
+    first_name:{
+        type:String,
+        required:true
+    },
+    last_name:{
+        type:String,
+        required:true
+    },
+    mobile:{
         type:String,
         required:true
     },
@@ -21,6 +29,26 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
+    },
+    dob:{
+        type:String,
+        required:true
+    },
+    status: {
+        type: String,
+        required: true,
+        default: "active",
+        enum: ["active", "inactive", "suspended", "deleted"]
+    },
+    created_at: {
+        type: Date,
+        required: false,
+        default: Date.now
+    },
+    updated_at: {
+        type: Date,
+        required: false,
+        default: Date.now
     }
     
 }, { collection: 'users' })

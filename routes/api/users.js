@@ -6,7 +6,7 @@ const router = express.Router();
 
 
 router.get('/',async(req,res)=>{
-    res.status(200).json({message:"Message from Users"})
+    res.status(200).json({message:"Message from users "})
 } );
 
 

@@ -23,7 +23,7 @@ const jwt = require('jsonwebtoken');
 router.post('/register', async (req, res) => {
     try {
 
-        let { full_name,email, password} = req.body;
+        let { first_name, last_name, mobile, email, password, dob} = req.body;
         let user = await User.findOne({ email: email });
 
         if (user) {
@@ -37,11 +37,14 @@ router.post('/register', async (req, res) => {
             const salt_password = await bcrypt.hash(password, salt)
 
             const newUser = new User({
-                full_name: full_name,
+                first_name: first_name,
+                last_name: last_name,
+                mobile: mobile,
                 email: email,
-                password: salt_password
+                password: salt_password,
+                dob: dob
             })
-
+            
             await newUser.save()
             return res.status(200).json({
                 status: 200,
@@ -94,13 +97,31 @@ router.post('/login', async (req, res) => {
             });
         }
 
-       
+        // Check if user account is active
+        if (user.status === 'inactive') {
+            return res.status(401).json({
+                status: 401,
+                error: 'The user account is inactive. Please contact the administrator'
+            });
+        } else if (user.status === 'suspended') {
+            return res.status(401).json({
+                status: 401,
+                error: 'The user account is suspended. Please contact the administrator'
+            });
+        } else if (user.status === 'deleted') {
+            return res.status(401).json({
+                status: 401,
+                error: 'The user account is deleted. Please contact the administrator'
+            });
+        }
+        
 
         // Create and assign a token to the user
         const token = jwt.sign({ email: email, user_id: user.user_id }, process.env.TOKEN_SECRET, {
             expiresIn: '24h'
         });
 
+        
         res.status(200).json({
             status: 200,
             message: 'User logged in successfully',
