@@ -3,38 +3,35 @@ const mongoose = require('mongoose');
 const { nanoid } = require('nanoid');
 
 const ProductSchema = new mongoose.Schema({
-    product_id:{
+    
+    product_id: {
         type: String,
         required: true,
         unique: true,
         default: () => nanoid()
     },
-    product_name:{
-        type:String,
-        required:true
+    product_name: {
+        type: String,
+        required: true
     },
-    product_qty:{
-        type:String,
-        required:true
+    product_qty: {
+        type: String,
+        required: true
     },
-    product_owner:{
-        type:String,
-        required:true
+    product_owner: {
+        type: String,
+        required: true
     },
-    product_category:{
+    product_category: {
         type: String,
         required: true,
         default: "fruits",
-        enum: ["fruits", "vegetables"]
+        enum: ["fruits", "vegetables", "packed_foods"]
     },
     expiry_date: {
         type: Date,
         required: false,
         default: Date.now
-    },
-    seller_id:{
-        type:String,
-        required: true
     },
     created_at: {
         type: Date,
@@ -46,8 +43,7 @@ const ProductSchema = new mongoose.Schema({
         required: false,
         default: Date.now
     }
-    
-    
+
 }, { collection: 'products' })
 
 module.exports = mongoose.model('Product', ProductSchema);
