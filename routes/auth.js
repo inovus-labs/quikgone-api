@@ -23,27 +23,8 @@ const jwt = require('jsonwebtoken');
 router.post('/register', async (req, res) => {
     try {
 
-        let { first_name, last_name, mobile, email, password, dob, gender, department, batch, college } = req.body;
+        let { full_name,email, password} = req.body;
         let user = await User.findOne({ email: email });
-
-
-        if (password.length < 8) {
-            return res.status(400).json({
-                status: 400,
-                message: 'Password should be atleast 8 characters long'
-            })
-        } else if (password.search(/[a-z]/i) < 0) {
-            return res.status(400).json({
-                status: 400,
-                message: 'Password should contain atleast one letter'
-            })
-        } else if (password.search(/[0-9]/) < 0) {
-            return res.status(400).json({
-                status: 400,
-                message: 'Password should contain atleast one digit'
-            })
-        }
-
 
         if (user) {
             return res.status(400).json({
@@ -56,16 +37,9 @@ router.post('/register', async (req, res) => {
             const salt_password = await bcrypt.hash(password, salt)
 
             const newUser = new User({
-                first_name: first_name,
-                last_name: last_name,
-                mobile: mobile,
+                full_name: full_name,
                 email: email,
-                password: salt_password,
-                dob: dob,
-                gender: gender,
-                department: department,
-                batch: batch,
-                college: college
+                password: salt_password
             })
 
             await newUser.save()
@@ -120,34 +94,13 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        // Check if user account is active
-        if (user.status === 'inactive') {
-            return res.status(401).json({
-                status: 401,
-                error: 'The user account is inactive. Please contact the administrator'
-            });
-        } else if (user.status === 'suspended') {
-            return res.status(401).json({
-                status: 401,
-                error: 'The user account is suspended. Please contact the administrator'
-            });
-        } else if (user.status === 'deleted') {
-            return res.status(401).json({
-                status: 401,
-                error: 'The user account is deleted. Please contact the administrator'
-            });
-        }
-        
+       
 
         // Create and assign a token to the user
         const token = jwt.sign({ email: email, user_id: user.user_id }, process.env.TOKEN_SECRET, {
             expiresIn: '24h'
         });
 
-        
-        // Set cookie
-        res.cookie('authcookie', token, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true });
-        // res.header('auth-token', token).send(token);
         res.status(200).json({
             status: 200,
             message: 'User logged in successfully',
