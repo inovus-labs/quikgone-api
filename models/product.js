@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { nanoid } = require('nanoid');
 
 const ProductSchema = new mongoose.Schema({
-    
+
     product_id: {
         type: String,
         required: true,
@@ -36,6 +36,28 @@ const ProductSchema = new mongoose.Schema({
         default: "fruits",
         enum: ["fruits", "vegetables", "packed_foods"]
     },
+    price: {
+        type: Number,
+        required: true
+    },
+    discount: [
+        {
+            min_qty: {
+                type: Number,
+                required: false
+            },
+            discount: {
+                type: Number,
+                required: false
+            },
+            mode: {
+                type: String,
+                required: false,
+                default: "percentage",
+                enum: ["percentage", "flat"]
+            }
+        }
+    ],
     expiry_date: {
         type: Date,
         required: false,

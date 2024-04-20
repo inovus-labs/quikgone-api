@@ -1,6 +1,7 @@
 
 const express = require('express');
 const router = express.Router();
+const Product = require('../../models/product');
 const Cart = require('../../models/cart');
 const verifyToken = require('../../middleware/authentication');
 
@@ -19,25 +20,46 @@ const verifyToken = require('../../middleware/authentication');
 
 router.get('/', verifyToken, async (req, res) => {
     try {
-        
+
         const user_id = req.user.user_id;
 
-        const cart = await Cart.find({ user_id: user_id }).select('-_id -__v')
-        if (!cart) {
-            return res.status(404).json({
-                status: 404,
-                message: 'Cart is empty'
-            });
-        }
+        await Cart.findOne({ user_id: user_id }).select('-_id -__v').then(async cart => {
 
-        return res.status(200).json({
-            status: 200,
-            message: "Cart items found successfully",
-            data: cart
+            await Product.find({ product_id: { $in: cart.products.map(p => p.product_id) } }).then(products => {
+
+                let cart_items = cart.products.map(p => {
+                    let product = products.find(pr => pr.product_id === p.product_id);
+                    return {
+                        
+                        product_id: product.product_id,
+                        product_name: product.product_name,
+                        product_qty: Number(product.product_qty),
+                        images: product.images,
+                        price: Number(product.price),
+                        discount: product.discount,
+
+                    };
+                });
+
+                return res.status(200).json({
+                    status: 200,
+                    message: "Cart items fetched successfully",
+                    cart: cart_items
+                });
+
+            }).catch(error => {
+                return res.status(400).json({
+                    status: 400,
+                    message: "Error fetching products",
+                    error: error
+                });
+
+            });
+
         });
-        
+
     } catch (error) {
-        
+
     }
 });
 
@@ -59,7 +81,7 @@ router.get('/', verifyToken, async (req, res) => {
 
 router.post('/', verifyToken, async (req, res) => {
     try {
-        
+
         const user_id = await req.user.user_id;
         let { product_id, qty } = req.body;
 
@@ -91,7 +113,7 @@ router.post('/', verifyToken, async (req, res) => {
                 message: "Product added to cart successfully"
             });
         });
-        
+
     } catch (error) {
         return res.status(500).json({
             status: 500,
@@ -118,20 +140,20 @@ router.post('/', verifyToken, async (req, res) => {
 
 router.patch('/:product_id', verifyToken, async (req, res) => {
     try {
-        
+
         const user_id = req.user.user_id;
         const product_id = req.params.product_id;
         const { qty } = req.body;
-        
+
         let cart = await Cart.findOne({ user_id: user_id });
-        
+
         if (!cart) {
             return res.status(404).json({
                 status: 404,
                 message: "Cart is empty"
             });
         }
-        
+
         let product = cart.products.find(p => p.product_id === product_id);
         if (!product) {
             return res.status(404).json({
@@ -139,7 +161,7 @@ router.patch('/:product_id', verifyToken, async (req, res) => {
                 message: "Product not found in cart"
             });
         }
-        
+
         product.qty = qty;
 
         // Check if product qty is 0
@@ -153,12 +175,12 @@ router.patch('/:product_id', verifyToken, async (req, res) => {
         if (cart.products.length === 0) {
             await Cart.findOneAndDelete({ user_id: user_id });
         }
-        
+
         return res.status(200).json({
             status: 200,
             message: "Product updated successfully"
         });
-        
+
     } catch (error) {
         return res.status(500).json({
             status: 500,
