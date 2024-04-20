@@ -5,6 +5,7 @@ const router = express.Router();
 
 const productRouter = require('./products');
 
+
 router.use('/products', productRouter);
 
 
