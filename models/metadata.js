@@ -2,55 +2,47 @@
 const mongoose = require('mongoose');
 const { nanoid } = require('nanoid');
 
-const UserSchema = new mongoose.Schema({
+const MetadataSchema = new mongoose.Schema({
     
-    user_id: {
+    meta_id: {
         type: String,
         required: true,
         unique: true,
         default: () => nanoid()
     },
-    first_name: {
+    user_id: {
         type: String,
         required: true
     },
-    last_name: {
+
+    // Company Details (Seller)
+    company_name: {
         type: String,
         required: true
     },
-    mobile: {
+    company_address: {
         type: String,
         required: true
     },
-    email: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    password: {
-        type: String,
-        required: true,
-    },
-    dob: {
+    company_city: {
         type: String,
         required: true
     },
-    status: {
+    company_state: {
         type: String,
-        required: true,
-        default: "active",
-        enum: ["active", "inactive", "suspended", "deleted"]
+        required: true
     },
-    user_type: {
+
+    // Vehicle Details (Carrier)
+    vehicle_type: {
         type: String,
-        required: true,
-        default: "buyer",
-        enum: ["buyer", "seller", "carrier", "admin"]
+        required: true
     },
-    meta_id: {
+    vehicle_number: {
         type: String,
-        required: false
+        required: true
     },
+
     created_at: {
         type: Date,
         required: false,
@@ -62,6 +54,6 @@ const UserSchema = new mongoose.Schema({
         default: Date.now
     }
 
-}, { collection: 'users' })
+}, { collection: 'metadata' })
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('Metadata', MetadataSchema);
