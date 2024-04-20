@@ -55,14 +55,13 @@ router.get('/:id', async (req, res) => {
 
 router.post('/create', async (req, res) => {
 
-    const { product_name, product_qty, product_owner, product_category, seller_id,expiry_date } = req.body;
+    const { product_name, product_qty, product_owner, product_category,expiry_date } = req.body;
 
     const newProduct = new Product({
         product_name: product_name,
         product_qty: product_qty,
         product_owner: product_owner,
         product_category: product_category,
-        seller_id: seller_id,
         expiry_date:expiry_date
     })
     await newProduct.save()
@@ -75,7 +74,7 @@ router.post('/create', async (req, res) => {
 
 router.patch('/update/:id', async (req, res) => {
     const productId = req.params['id'];
-    const { product_name, product_qty, product_owner, product_category, seller_id } = req.body;
+    const { product_name, product_qty, product_owner, product_category } = req.body;
 
     try {
         const existingProduct = await Product.findOne({ product_id: productId });
@@ -91,7 +90,6 @@ router.patch('/update/:id', async (req, res) => {
         existingProduct.product_qty = product_qty;
         existingProduct.product_owner = product_owner;
         existingProduct.product_category = product_category;
-        existingProduct.seller_id = seller_id;
 
         await existingProduct.save();
 
