@@ -25,18 +25,26 @@ router.get('/', verifyToken, async (req, res) => {
 
         await Cart.findOne({ user_id: user_id }).select('-_id -__v').then(async cart => {
 
+            if (!cart) {
+                return res.status(404).json({
+                    status: 404,
+                    message: "Cart is empty"
+                });
+            }
+
             await Product.find({ product_id: { $in: cart.products.map(p => p.product_id) } }).then(products => {
 
                 let cart_items = cart.products.map(p => {
                     let product = products.find(pr => pr.product_id === p.product_id);
                     return {
                         
-                        product_id: product.product_id,
+                        // product_id: product.product_id,
                         product_name: product.product_name,
                         product_qty: Number(product.product_qty),
                         images: product.images,
                         price: Number(product.price),
                         discount: product.discount,
+                        qty: p.qty
 
                     };
                 });
@@ -59,6 +67,12 @@ router.get('/', verifyToken, async (req, res) => {
         });
 
     } catch (error) {
+
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            error: error
+        });
 
     }
 });
