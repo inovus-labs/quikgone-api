@@ -64,6 +64,12 @@ const ProductSchema = new mongoose.Schema({
             }
         }
     ],
+    status: {
+        type: String,
+        required: true,
+        default: "active",
+        enum: ["active", "inactive"]
+    },
     expiry_date: {
         type: Date,
         required: false,
