@@ -30,7 +30,8 @@ const ProductSchema = new mongoose.Schema({
     },
     images: {
         type: Array,
-        required: false
+        required: false,
+        default: ["https://thsti.res.in/public/upload/news/1594815792img.png"]
     },
     product_owner: {
         type: String,
