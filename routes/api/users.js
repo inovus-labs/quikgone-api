@@ -57,32 +57,32 @@ router.get('/', verifyToken, async (req, res) => {
  * @example /users/123
 **/
 
-router.get('/:id', verifyToken, async (req, res) => {
+// router.get('/:id', verifyToken, async (req, res) => {
 
-    const userId = req.params['id'];
+//     const userId = req.params['id'];
 
-    try {
-        const product = await User.findOne({ user_id: userId }).select('-_id -__v')
-        if (!product) {
-            return res.status(404).json({
-                status: 404,
-                message: 'User not found'
-            });
-        }
+//     try {
+//         const product = await User.findOne({ user_id: userId }).select('-_id -__v')
+//         if (!product) {
+//             return res.status(404).json({
+//                 status: 404,
+//                 message: 'User not found'
+//             });
+//         }
 
-        return res.status(200).json({
-            status: 200,
-            message: 'User found',
-            data: product
-        });
+//         return res.status(200).json({
+//             status: 200,
+//             message: 'User found',
+//             data: product
+//         });
 
-    } catch (error) {
-        return res.status(500).json({
-            status: 500,
-            message: 'Internal server error'
-        });
-    }
-});
+//     } catch (error) {
+//         return res.status(500).json({
+//             status: 500,
+//             message: 'Internal server error'
+//         });
+//     }
+// });
 
 
 
