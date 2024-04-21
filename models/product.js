@@ -73,12 +73,7 @@ const ProductSchema = new mongoose.Schema({
     expiry_date: {
         type: Date,
         required: false,
-        // default: Date.now
-        default: function () {
-            const currentDate = new Date();
-            currentDate.setDate(currentDate.getDate() - 1);
-            return currentDate;
-        }
+        default: Date.now
     },
     created_at: {
         type: Date,
