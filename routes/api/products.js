@@ -21,7 +21,7 @@ const verifyToken = require('../../middleware/authentication');
 router.get('/', async (req, res) => {
     try {
 
-        const product = await Product.find({}).select('-_id -__v')
+        const product = await Product.find({status:"active"}).select('-_id -__v')
         if (!product) {
             return res.status(404).json({
                 status: 404,
@@ -62,7 +62,7 @@ router.get('/:id', async (req, res) => {
     const productId = req.params['id'];
 
     try {
-        const product = await Product.findOne({ product_id: productId }).select('-_id -__v')
+        const product = await Product.findOne({ product_id: productId,status:"active" }).select('-_id -__v')
         if (!product) {
             return res.status(404).json({
                 status: 404,
