@@ -9,6 +9,16 @@ var cors = require('cors')
 const app = express();
 app.use(cors())
 
+corsOptions = {
+    origin: '*',
+    optionsSuccessStatus: 200
+}
+
+app.use(cors(corsOptions))
+
+
+
+
 const routes = require('./routes');
 
 app.use(express.json());
