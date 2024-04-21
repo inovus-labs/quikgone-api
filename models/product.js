@@ -64,10 +64,21 @@ const ProductSchema = new mongoose.Schema({
             }
         }
     ],
+    status: {
+        type: String,
+        required: true,
+        default: "active",
+        enum: ["active", "inactive"]
+    },
     expiry_date: {
         type: Date,
         required: false,
-        default: Date.now
+        // default: Date.now
+        default: function () {
+            const currentDate = new Date();
+            currentDate.setDate(currentDate.getDate() - 1);
+            return currentDate;
+        }
     },
     created_at: {
         type: Date,
