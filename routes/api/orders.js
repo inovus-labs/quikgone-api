@@ -32,6 +32,44 @@ router.get('/', verifyToken, async (req, res) => {
             });
         }
 
+        // replace buyer_id and seller_id with user first_name and last_name
+        await User.find({ user_id: { $in: order.map(o => o.buyer_id) } }).then(async buyers => {
+            await User.find({ user_id: { $in: order.map(o => o.seller_id) } }).then(async sellers => {
+                let orders = order.map(o => {
+                    let buyer = buyers.find(b => b.user_id === o.buyer_id);
+                    let seller = sellers.find(s => s.user_id === o.seller_id);
+
+                    return {
+                        buyer: buyer.first_name + " " + buyer.last_name,
+                        seller: seller.first_name + " " + seller.last_name,
+                        products: o.products,
+                        total_price: o.total_price,
+                        order_status: o.order_status
+                    };
+                });
+
+                return res.status(200).json({
+                    status: 200,
+                    message: "Orders found successfully",
+                    data: orders
+                });
+
+            }).catch(error => {
+                return res.status(400).json({
+                    status: 400,
+                    message: "Error fetching sellers",
+                    error: error
+                });
+            });
+
+        }).catch(error => {
+            return res.status(400).json({
+                status: 400,
+                message: "Error fetching buyers",
+                error: error
+            });
+        });
+
         return res.status(200).json({
             status: 200,
             message: "Orders found successfully",
