@@ -18,7 +18,7 @@ const verifyToken = require('../../middleware/authentication');
  * @example /products
 **/
 
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
     try {
 
         const product = await User.find({}).select('-_id -__v')
@@ -57,7 +57,7 @@ router.get('/', async (req, res) => {
  * @example /users/123
 **/
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', verifyToken, async (req, res) => {
 
     const userId = req.params['id'];
 
