@@ -38,7 +38,7 @@ router.get('/', verifyToken, async (req, res) => {
                     let product = products.find(pr => pr.product_id === p.product_id);
                     return {
                         
-                        // product_id: product.product_id,
+                        product_id: product.product_id,
                         product_name: product.product_name,
                         product_qty: Number(product.product_qty),
                         images: product.images,
