@@ -1,6 +1,6 @@
 require('dotenv').config();
 const db = require('./config/db');
-db.connect();
+// db.connect();
 const schedule = require('node-schedule')
 const Product = require('./models/product')
 // every_day_midnight = 0 0 * * *
@@ -43,6 +43,24 @@ let month = String(todayDate.getMonth() + 1).padStart(2, '0'); // Months are 0-b
 let day = String(todayDate.getDate()).padStart(2, '0');
 
 let formattedDate = `${year}-${month}-${day}`;
+// const job = schedule.scheduleJob('0 0 * * *', async ()=>{
+//     const expired = await Product.find()
+//     for (date of expired) {
+//         const expiry_date_formatted = date.expiry_date.toISOString().split("T")[0]
+//         if(expiry_date_formatted<formattedDate){
+//             console.log(date.expiry_date);
+//             date.status="inactive"
+//             await date.save()
+//         }
+//     }
+//   });
+
+app.listen((process.env.PORT || 3000), () => {
+    console.log(`\n--- Server listening on port ${process.env.PORT || 3000}`)
+})
+
+db.connect();
+
 const job = schedule.scheduleJob('0 0 * * *', async ()=>{
     const expired = await Product.find()
     for (date of expired) {
@@ -54,7 +72,3 @@ const job = schedule.scheduleJob('0 0 * * *', async ()=>{
         }
     }
   });
-
-app.listen((process.env.PORT || 3000), () => {
-    console.log(`\n--- Server listening on port ${process.env.PORT || 3000}`)
-})
