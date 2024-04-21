@@ -1,6 +1,8 @@
 
 const express = require('express');
 const router = express.Router();
+const Product = require('../../models/product');
+const User = require('../../models/user');
 const Cart = require('../../models/cart');
 const Order = require('../../models/order');
 const verifyToken = require('../../middleware/authentication');
@@ -139,68 +141,155 @@ router.get('/sell/:user_id', verifyToken, async (req, res) => {
 router.post('/', verifyToken, async (req, res) => {
     try {
 
-        console.log(req.user.user_id);
-        return;
+        let user_id = req.user.user_id;
 
         // create new order using data in the cart of the buyer
-        await Cart.findOne({ user_id: req.user.user_id }, async (err, cart) => {
-            if (err) {
-                return res.status(400).json({
-                    status: 400,
-                    message: err
-                });
-            }
+        await Cart.findOne({ user_id: user_id }).then(async cart => {
 
-            if (!cart) {
-                return res.status(404).json({
-                    status: 404,
-                    message: 'Cart not found'
-                });
-            }
-            
-            // get product_owners from products in cart and create order for each product_owner
-            let product_owners = [];
-            cart.products.forEach(product => {
-                if (!product_owners.includes(product.product_owner)) {
-                    product_owners.push(product.product_owner);
-                }
-            });
+            // Get products in the cart
+            await Product.find({ product_id: { $in: cart.products.map(p => p.product_id) } }).then(async products => {
 
-            // create order for each product_owner
-            product_owners.forEach(async product_owner => {
+                // get full product details
+                await User.find({ user_id: { $in: products.map(p => p.product_owner) } }).then(async product_owner => {
 
-                let products = cart.products.filter(product => product.product_owner === product_owner);
-                let total_price = 0;
-                products.forEach(product => {
-                    total_price += product.price * product.qty;
-                });
+                    let total_price = 0, item_price = 0;
+                    
+                    let cart_items = cart.products.map(p => {
+                        let product = products.find(pr => pr.product_id === p.product_id);
+                        
+                        
+                        // calculate price after discount for each product
+                        product.discount.map(d => {
+                            if (d.mode === "percentage") {
+                                item_price = product.price - (product.price * d.discount);
+                            } else {
+                                item_price = product.price - d.discount;
+                            }
+                        });
+                        
+                        let new_total = item_price * p.qty;
+                        total_price += new_total;
 
-                const order = new Order({
-                    buyer_id: req.user.user_id,
-                    seller_id: product_owner,
-                    products: products,
-                    total_price: total_price,
-                    order_status: "pending"
-                });
+                        
+                        // console.log({
+                        //     "Original per-price": product.price,
+                        //     "Discounted per-price": item_price,
+                        //     "Original Final price": product.price * p.qty,
+                        //     "Discounted Final price": new_total,
+                        // });
 
-                await order.save();
 
-                // clear cart
-                await Cart.findOneAndDelete({ buyer_id: req.user.user_id }).exec().then(() => {
+                        return {
+                            product_id: product.product_id,
+                            qty: p.qty,
+                            price: item_price
+                        };
+                    });
+
+                    let ordersArray = [];
+
+
+                    // create seperate orders for each seller
+                    let seller_ids = product_owner.map(p => p.user_id);
+
+                    seller_ids.map(async seller_id => {
+                        let seller_products = cart_items.filter(p => products.find(pr => pr.product_id === p.product_id).product_owner === seller_id);
+                        let seller_total = seller_products.reduce((a, b) => a + (b.price * b.qty), 0);
+
+                        let order = new Order({
+                            buyer_id: user_id,
+                            seller_id: seller_id,
+                            products: seller_products,
+                            total_price: seller_total,
+                            order_status: "pending"
+                        });
+
+                        ordersArray.push(order);
+
+
+                        // save orders
+                        await order.save().then(async order => {
+                            console.log("\nOrder created successfully", order, "\n");
+                        }).catch(error => {
+                            return res.status(400).json({
+                                status: 400,
+                                message: "Error creating order",
+                                error: error
+                            });
+                        });
+                    });
+
+
+                    // update the product quantity after creating orders
+                    products.map(async product => {
+
+                        let cart_product = cart_items.find(p => p.product_id === product.product_id);
+                        let new_qty = product.product_qty - cart_product.qty;
+
+                        await Product.findOneAndUpdate({ product_id: product.product_id }, { product_qty: new_qty }).then(async product => {
+                            console.log("Product quantity updated successfully", product);
+                        }).catch(error => {
+                            return res.status(400).json({
+                                status: 400,
+                                message: "Error updating product quantity",
+                                error: error
+                            });
+                        });
+                        
+                    });
+
+
+                    // clear cart after creating orders
+                    await Cart.findOneAndDelete({ user_id: user_id }).then(async cart => {
+                        console.log("Cart cleared successfully", cart);
+                    }).catch(error => {
+                        return res.status(400).json({
+                            status: 400,
+                            message: "Error clearing cart",
+                            error: error
+                        });
+                    });
+
+
+                    // return response
                     return res.status(201).json({
                         status: 201,
                         message: "Order created successfully",
-                        data: order
+                        data: {
+                            orders: {
+                                count: ordersArray.length,
+                                orders : ordersArray
+                            },
+                            total_price: total_price,
+                            order_status: "pending"
+                        }
                     });
-                }).catch(err => {
+
+
+                }).catch(error => {
                     return res.status(400).json({
                         status: 400,
-                        message: err
+                        message: "Error fetching product owner",
+                        error: error
                     });
                 });
 
+
+            }).catch(error => {
+                return res.status(400).json({
+                    status: 400,
+                    message: "Error fetching products",
+                    error: error
+                });
             });
 
+
+        }).catch(error => {
+            return res.status(400).json({
+                status: 400,
+                message: "Error fetching cart",
+                error: error
+            });
         });
 
 
